@@ -3,11 +3,15 @@ Medusa
 
 Gonzo LED strip lighting controller, driven from video output that's easy to program.
 
+![Medusa prototype installation at Ada's Technical Books, Seattle, WA, USA](https://raw.github.com/sharebrained/medusa/master/doc/installations/adas_books_seattle/images/adas_20131031.jpg)
+
 The hardware is in three parts:
 
 * Medusa Cape: BeagleBone Black cape that snoops the LCD video output of the BeagleBone and picks off RGB pixel values. Those values are mapped to LED pixels on one of 32 WS2811/WS2812 LED strips of up to 512 LEDs each.
 * Medusa TX32: A 32-channel RS-422 transmitter board that sends 4 pairs of RS-422 signalling out of each of eight RJ-45 connectors. Common CAT5/6 Ethernet cabling (TIA-568B) can be used to connect up to four strips on each cable.
 * Medusa RX2: A 2-channel RS-422 receiver board that picks off two channels of RS-422 on a cable, and passes the two remaining signals out another cable (so two 2-channel receivers can be chained to use all four channels on a single Ethernet cable).
+
+![Medusa Cape prototype](https://raw.github.com/sharebrained/medusa/master/doc/hardware/images/medusa_cape_prototype_0.jpg)
 
 Dependencies
 ============
