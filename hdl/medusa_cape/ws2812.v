@@ -111,12 +111,14 @@ end
 wire			led_symbol_next = (led_symbol_phase_next == 0);
 
 reg		[4:0]	led_symbol_count_q;
-wire	[4:0]	led_symbol_count_next = (led_symbol_count_q == 0) ? 5'd23 : (led_symbol_count_q - 5'b1);
-wire			led_symbol_last = (led_symbol_count_q == 0);
+wire			led_symbol_count_last = (led_symbol_count_q == 0);
+wire	[4:0]	led_symbol_count_init = 5'd23;
+wire	[4:0]	led_symbol_count_advance = led_symbol_count_q - 5'b1;
+wire	[4:0]	led_symbol_count_next = led_symbol_count_last ? led_symbol_count_init : led_symbol_count_advance;
 
 always @(posedge clk_i) begin
 	if (rst_i) begin
-		led_symbol_count_q <= 23;
+		led_symbol_count_q <= led_symbol_count_init;
 	end
 	else begin
 		if (led_symbol_next) begin
@@ -125,7 +127,7 @@ always @(posedge clk_i) begin
 	end
 end
 
-wire			led_pixel_next = (led_symbol_last) && (led_symbol_next == 1);
+wire			led_pixel_next = (led_symbol_count_last) && (led_symbol_next == 1);
 wire			led_pixel_count_last = (led_pixel_count_q == 0);
 wire	[8:0]	led_pixel_count_init = LED_COUNT - 1;
 wire	[8:0]	led_pixel_count_advance = led_pixel_count_q - 9'b1;
