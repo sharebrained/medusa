@@ -75,7 +75,7 @@ wire	[23:0]	lcd_data24;
 assign			lcd_data24 = {
 	LCD_DATA_i[15:11], LCD_DATA_i[15:13],
 	LCD_DATA_i[10: 5], LCD_DATA_i[10: 9],
-	LCD_DATA_i[ 4: 0], LCD_DATA_i[ 4: 2],
+	LCD_DATA_i[ 4: 0], LCD_DATA_i[ 4: 2]
 };
 /*
 assign			lcd_data24 = {
