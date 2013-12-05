@@ -226,6 +226,7 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to PORT_EN_o[1]
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to PORT_EN_o[0]
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to PWRGD
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to PWR_EN
+set_global_assignment -name VERILOG_FILE ../ws2812.v
 set_global_assignment -name VERILOG_FILE ../gamma.v
 set_global_assignment -name VERILOG_FILE ../map_wall_edge.v
 set_global_assignment -name VERILOG_FILE ../map_door.v
