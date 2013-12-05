@@ -39,6 +39,20 @@ module strip_ws2812 (
 parameter		LED_COUNT;
 parameter		REVERSE = 0;
 
+parameter		CYCLES_0_HIGH = 21;	//  0.42 us @ 50MHz
+parameter		CYCLES_1_HIGH = 42;	//  0.84 us @ 50MHz
+parameter		CYCLES_BIT = 63;		//  1.26 us @ 50MHz
+parameter		CYCLES_RESET = 2600;	// 52.00 us @ 50MHz
+
+parameter		SYMBOL_0_HIGH = CYCLES_0_HIGH,				
+				SYMBOL_0_DURATION = CYCLES_BIT;			
+
+parameter		SYMBOL_1_HIGH = CYCLES_1_HIGH,			
+				SYMBOL_1_DURATION = CYCLES_BIT;
+
+parameter		SYMBOL_RESET_HIGH = 0,
+				SYMBOL_RESET_DURATION = CYCLES_RESET;
+
 /* WS2812 data sheet:
  * T0H + T0L = 350 ns + 800 ns = 1.15 us
  * T1H + T1L = 700 ns + 600 ns = 1.3 us
@@ -95,18 +109,18 @@ reg				led_out;
 always @(led_symbol_q or led_symbol_phase_q) begin
 	case(led_symbol_q)
 	LED_SYMBOL_0: begin
-		led_symbol_duration = 64;				// 1.26 us
-		led_out = (led_symbol_phase_q < 21);	// 0.40 us
+		led_symbol_duration = SYMBOL_0_DURATION;
+		led_out = (led_symbol_phase_q < SYMBOL_0_HIGH);
 	end
 
 	LED_SYMBOL_1: begin
-		led_symbol_duration = 64;				// 1.26 us
-		led_out = (led_symbol_phase_q < 42);	// 0.8 us
+		led_symbol_duration = SYMBOL_1_DURATION;
+		led_out = (led_symbol_phase_q < SYMBOL_1_HIGH);
 	end
 
 	LED_SYMBOL_RESET: begin
-		led_symbol_duration = 2600;	// 52 us
-		led_out = 0;
+		led_symbol_duration = SYMBOL_RESET_DURATION;
+		led_out = (led_symbol_phase_q < SYMBOL_RESET_HIGH);
 	end
 
 	endcase
