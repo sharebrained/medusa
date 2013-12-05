@@ -53,12 +53,9 @@ pixel_ram pixel_ram (
 	.addr_a(pixel_ram_waddr),
 	.data_a(pixel_ram_wdata),
 	.we_a(pixel_ram_we),
-	.q_a(),
 	
 	.clk_b(pixel_ram_rclk),
 	.addr_b(pixel_ram_raddr),
-	.data_b(24'h0),
-	.we_b(1'b0),
 	.q_b(pixel_ram_rdata)
 );
 
