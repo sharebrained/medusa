@@ -25,15 +25,21 @@ module ws2812
 #(parameter LED_COUNT, parameter REVERSE)
 (
 	input			rst_i,
+	input			clk_i,
 
 	output	[8:0]	address_o,
-	input	[7:0]	led_r,
-	input	[7:0]	led_g,
-	input	[7:0]	led_b,
+	input	[7:0]	r_i,
+	input	[7:0]	g_i,
+	input	[7:0]	b_i,
 
-	input			led_clk_i,
-	output			led_data_o
+	output			data_o
 );
+
+/* WS2812 data sheet:
+ * T0H + T0L = 350 ns + 800 ns = 1.15 us
+ * T1H + T1L = 700 ns + 600 ns = 1.3 us
+ * Treset = >50 us
+ */
 
 parameter		CYCLES_0_HIGH = 21;	//  0.42 us @ 50MHz
 parameter		CYCLES_1_HIGH = 42;	//  0.84 us @ 50MHz
@@ -49,17 +55,11 @@ parameter		SYMBOL_1_HIGH = CYCLES_1_HIGH,
 parameter		SYMBOL_RESET_HIGH = 0,
 				SYMBOL_RESET_DURATION = CYCLES_RESET;
 
-/* WS2812 data sheet:
- * T0H + T0L = 350 ns + 800 ns = 1.15 us
- * T1H + T1L = 700 ns + 600 ns = 1.3 us
- * Treset = >50 us
- */
-
 reg		[8:0]	led_pixel_count_q;
 
 assign			address_o = (REVERSE != 0) ? (LED_COUNT - 1 - led_pixel_count_q) : led_pixel_count_q;
 
-wire	[23:0]	led_data = { led_g[7:0], led_r[7:0], led_b[7:0] };
+wire	[23:0]	led_data = { g_i[7:0], r_i[7:0], b_i[7:0] };
 
 reg		[1:0]	led_symbol_q;
 parameter		LED_SYMBOL_0 = 2'd0,
@@ -95,9 +95,9 @@ always @(led_symbol_q or led_symbol_phase_q) begin
 end
 
 reg				led_out_q;
-assign			led_data_o = led_out_q;
+assign			data_o = led_out_q;
 
-always @(posedge led_clk_i) begin
+always @(posedge clk_i) begin
 	if (rst_i) begin
 		led_symbol_phase_q <= 0;
 		led_out_q <= 0;
@@ -114,7 +114,7 @@ reg		[4:0]	led_symbol_count_q;
 wire	[4:0]	led_symbol_count_next = (led_symbol_count_q == 0) ? 5'd23 : (led_symbol_count_q - 5'b1);
 wire			led_symbol_last = (led_symbol_count_q == 0);
 
-always @(posedge led_clk_i) begin
+always @(posedge clk_i) begin
 	if (rst_i) begin
 		led_symbol_count_q <= 23;
 	end
@@ -129,7 +129,7 @@ wire			led_pixel_next = (led_symbol_last) && (led_symbol_next == 1);
 wire			led_pixel_last = (led_pixel_count_q == 1);
 wire	[8:0]	led_pixel_count_next = led_pixel_last ? (LED_COUNT - 1) : (led_pixel_count_q - 9'b1);
 
-always @(posedge led_clk_i) begin
+always @(posedge clk_i) begin
 	if (rst_i) begin
 		led_pixel_count_q <= 0;
 	end
@@ -142,7 +142,7 @@ end
 
 wire			led_frame_end = (led_pixel_next) && (led_pixel_last);
 
-always @(posedge led_clk_i) begin
+always @(posedge clk_i) begin
 	if (rst_i) begin
 		led_symbol_q <= LED_SYMBOL_RESET;
 	end

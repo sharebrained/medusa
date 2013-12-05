@@ -64,11 +64,11 @@ ws2812
 ws2812 (
 	.rst_i(rst_i),
 	.address_o(pixel_ram_raddr),
-	.led_r(pixel_ram_rdata[23:16]),
-	.led_g(pixel_ram_rdata[15: 8]),
-	.led_b(pixel_ram_rdata[ 7: 0]),
-	.led_clk_i(led_clk_i),
-	.led_data_o(led_data_o)
+	.r_i(pixel_ram_rdata[23:16]),
+	.g_i(pixel_ram_rdata[15: 8]),
+	.b_i(pixel_ram_rdata[ 7: 0]),
+	.clk_i(led_clk_i),
+	.data_o(led_data_o)
 );
 
 endmodule
