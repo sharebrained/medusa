@@ -21,7 +21,9 @@
 // Boston, MA 02110-1301, USA.
 //
 
-module ws2812 (
+module ws2812
+#(parameter LED_COUNT, parameter REVERSE)
+(
 	input			rst_i,
 
 	output	[8:0]	address_o,
@@ -32,9 +34,6 @@ module ws2812 (
 	input			led_clk_i,
 	output			led_data_o
 );
-
-parameter		LED_COUNT;
-parameter		REVERSE;
 
 parameter		CYCLES_0_HIGH = 21;	//  0.42 us @ 50MHz
 parameter		CYCLES_1_HIGH = 42;	//  0.84 us @ 50MHz
