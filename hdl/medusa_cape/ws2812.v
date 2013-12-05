@@ -126,10 +126,10 @@ always @(posedge clk_i) begin
 end
 
 wire			led_pixel_next = (led_symbol_last) && (led_symbol_next == 1);
-wire			led_pixel_last = (led_pixel_count_q == 1);
+wire			led_pixel_count_last = (led_pixel_count_q == 1);
 wire	[8:0]	led_pixel_count_init = LED_COUNT - 1;
 wire	[8:0]	led_pixel_count_advance = led_pixel_count_q - 9'b1;
-wire	[8:0]	led_pixel_count_next = led_pixel_last ? led_pixel_count_init : led_pixel_count_advance;
+wire	[8:0]	led_pixel_count_next = led_pixel_count_last ? led_pixel_count_init : led_pixel_count_advance;
 
 always @(posedge clk_i) begin
 	if (rst_i) begin
@@ -142,7 +142,7 @@ always @(posedge clk_i) begin
 	end
 end
 
-wire			led_frame_end = (led_pixel_next) && (led_pixel_last);
+wire			led_frame_end = (led_pixel_next) && (led_pixel_count_last);
 
 always @(posedge clk_i) begin
 	if (rst_i) begin
