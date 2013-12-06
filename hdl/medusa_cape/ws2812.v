@@ -46,120 +46,116 @@ parameter		CYCLES_1_HIGH = 42;	//  0.84 us @ 50MHz
 parameter		CYCLES_BIT = 63;		//  1.26 us @ 50MHz
 parameter		CYCLES_RESET = 2600;	// 52.00 us @ 50MHz
 
-parameter		SYMBOL_0_HIGH = CYCLES_0_HIGH,				
-				SYMBOL_0_DURATION = CYCLES_BIT;			
+parameter		STATE_PIXEL = 0,
+				STATE_SYNC = 1;
+reg		[1:0]	state;
 
-parameter		SYMBOL_1_HIGH = CYCLES_1_HIGH,			
-				SYMBOL_1_DURATION = CYCLES_BIT;
+parameter		SYMBOL_0 = 0,
+				SYMBOL_1 = 1,
+				SYMBOL_RESET = 2;
+wire	[1:0]	symbol;
 
-parameter		SYMBOL_RESET_HIGH = 0,
-				SYMBOL_RESET_DURATION = CYCLES_RESET;
+reg		[11:0]	symbol_phase;
+reg		[11:0]	symbol_duration;
+reg		[11:0]	symbol_high_time;
 
-reg		[8:0]	led_pixel_count_q;
-
-assign			address_o = (REVERSE != 0) ? (LED_COUNT - 1 - led_pixel_count_q) : led_pixel_count_q;
-
-wire	[23:0]	led_data = { g_i[7:0], r_i[7:0], b_i[7:0] };
-
-reg		[1:0]	led_symbol_q;
-parameter		LED_SYMBOL_0 = 2'd0,
-				LED_SYMBOL_1 = 2'd1,
-				LED_SYMBOL_RESET = 2'd2;
-
-reg		[11:0]	led_symbol_duration;
-reg		[11:0]	led_symbol_phase_q;
-wire	[11:0]	led_symbol_phase_next;
-wire	[11:0]	led_symbol_phase_inc = (led_symbol_phase_q + 12'b1);
-assign			led_symbol_phase_next = (led_symbol_phase_inc < led_symbol_duration) ? led_symbol_phase_inc : 12'b0;
-
-reg				led_out;
-
-always @(led_symbol_q or led_symbol_phase_q) begin
-	case(led_symbol_q)
-	LED_SYMBOL_0: begin
-		led_symbol_duration = SYMBOL_0_DURATION;
-		led_out = (led_symbol_phase_q < SYMBOL_0_HIGH);
-	end
-
-	LED_SYMBOL_1: begin
-		led_symbol_duration = SYMBOL_1_DURATION;
-		led_out = (led_symbol_phase_q < SYMBOL_1_HIGH);
-	end
-
-	LED_SYMBOL_RESET: begin
-		led_symbol_duration = SYMBOL_RESET_DURATION;
-		led_out = (led_symbol_phase_q < SYMBOL_RESET_HIGH);
-	end
-
+always @(symbol) begin
+	case(symbol)
+	SYMBOL_0:		symbol_high_time = CYCLES_0_HIGH;
+	SYMBOL_1:		symbol_high_time = CYCLES_1_HIGH;
+	default:		symbol_high_time = 0;
 	endcase
 end
 
-reg				led_out_q;
-assign			data_o = led_out_q;
+always @(symbol) begin
+	case(symbol)
+	SYMBOL_0:		symbol_duration = CYCLES_BIT;
+	SYMBOL_1:		symbol_duration = CYCLES_BIT;
+	default:		symbol_duration = CYCLES_RESET;
+	endcase
+end
+
+reg				symbol_out;
+assign	 		data_o = symbol_out;
+
+wire			symbol_end = (symbol_phase == (symbol_duration - 1));
 
 always @(posedge clk_i) begin
 	if (rst_i) begin
-		led_symbol_phase_q <= 0;
-		led_out_q <= 0;
+		symbol_phase <= 0;
+		symbol_out <= 0;
 	end
 	else begin
-		led_symbol_phase_q <= led_symbol_phase_next;
-		led_out_q <= led_out;
+		symbol_out <= (symbol_phase < symbol_high_time);
+
+		if (symbol_end)
+			symbol_phase <= 0;
+		else
+			symbol_phase <= symbol_phase + 1;
 	end
 end
 
-wire			led_symbol_next = (led_symbol_phase_next == 0);
+reg		[4:0]	symbol_count;
+wire			pixel_end = (symbol_count == 23) && symbol_end;
 
-reg		[4:0]	led_symbol_count_q;
-wire			led_symbol_count_last = (led_symbol_count_q == 0);
-wire	[4:0]	led_symbol_count_init = 5'd23;
-wire	[4:0]	led_symbol_count_advance = led_symbol_count_q - 5'b1;
-wire	[4:0]	led_symbol_count_next = led_symbol_count_last ? led_symbol_count_init : led_symbol_count_advance;
+wire	[23:0]	led_data = { g_i[7:0], r_i[7:0], b_i[7:0] };
 
 always @(posedge clk_i) begin
-	if (rst_i) begin
-		led_symbol_count_q <= led_symbol_count_init;
-	end
+	if (rst_i)
+		symbol_count <= 0;
 	else begin
-		if (led_symbol_next) begin
-			led_symbol_count_q <= led_symbol_count_next;
-		end
+		if (symbol_end)
+			if (pixel_end)
+				symbol_count <= 0;
+			else
+				if (state == STATE_PIXEL)
+					symbol_count <= symbol_count + 1;
 	end
 end
 
-wire			led_pixel_next = (led_symbol_count_last) && (led_symbol_next == 1);
-wire			led_pixel_count_last = (led_pixel_count_q == 0);
-wire	[8:0]	led_pixel_count_init = LED_COUNT - 1;
-wire	[8:0]	led_pixel_count_advance = led_pixel_count_q - 9'b1;
-wire	[8:0]	led_pixel_count_next = led_pixel_count_last ? led_pixel_count_init : led_pixel_count_advance;
+reg		[8:0]	pixel_count;
+wire			frame_end = (pixel_count == (LED_COUNT - 1)) && pixel_end;
+
+assign			symbol = (state == STATE_PIXEL) ? led_data[23 - symbol_count] : SYMBOL_RESET;
 
 always @(posedge clk_i) begin
 	if (rst_i) begin
-		led_pixel_count_q <= led_pixel_count_init;
+		state <= STATE_SYNC;
+		pixel_count <= 0;
 	end
 	else begin
-		if (led_pixel_next) begin
-			led_pixel_count_q <= led_pixel_count_next;
-		end
-	end
-end
-
-wire			led_frame_end = (led_pixel_next) && (led_pixel_count_last);
-
-always @(posedge clk_i) begin
-	if (rst_i) begin
-		led_symbol_q <= LED_SYMBOL_RESET;
-	end
-	else begin
-		if (led_symbol_next) begin
-			if (led_frame_end) begin
-				led_symbol_q <= LED_SYMBOL_RESET;
+		case(state)
+		STATE_PIXEL: begin
+			if (pixel_end) begin
+				if (frame_end) begin
+					state <= STATE_SYNC;
+					pixel_count <= 0;
+				end
+				else begin
+					state <= STATE_PIXEL;
+					pixel_count <= pixel_count + 1;
+				end
 			end
 			else begin
-				led_symbol_q <= led_data[led_symbol_count_q] ? LED_SYMBOL_1 : LED_SYMBOL_0;
+				state <= STATE_PIXEL;
+				pixel_count <= pixel_count;
 			end
 		end
+
+		default: begin
+			if (symbol_end) begin
+				state <= STATE_PIXEL;
+				pixel_count <= 0;
+			end
+			else begin
+				state <= STATE_SYNC;
+				pixel_count <= 0;
+			end
+		end
+		endcase
 	end
 end
+
+assign			address_o = REVERSE ? pixel_count : (LED_COUNT - 1 - pixel_count);
 
 endmodule
