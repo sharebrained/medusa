@@ -40,6 +40,10 @@ module top (
 	output			LCD_PCLK_ACTIVE_o
 );
 
+parameter		COLOR_MODE_RGB565 = 0,
+				COLOR_MODE_RGB888 = 1;
+parameter		COLOR_MODE = COLOR_MODE_RGB565;
+
 wire rst;
 
 por por_instance (
@@ -71,19 +75,23 @@ wire	[23:0]	lcd_data;
 wire			lcd_data_valid;
 
 wire	[23:0]	lcd_data24;
-//assign			lcd_data24 = LCD_PCLK_ACTIVE_o ? 24'hffffff : 24'h000000;
-assign			lcd_data24 = {
+
+/* Default color mode of BeagleBone Angstrom Linux distributions */
+wire	[23:0]	lcd_data_rgb565 = {
 	LCD_DATA_i[15:11], LCD_DATA_i[15:13],
 	LCD_DATA_i[10: 5], LCD_DATA_i[10: 9],
 	LCD_DATA_i[ 4: 0], LCD_DATA_i[ 4: 2]
 };
-/*
-assign			lcd_data24 = {
-	LCD_DATA_i[23:16],
-	LCD_DATA_i[15: 8],
-	LCD_DATA_i[ 7: 0]
+
+/* Weird 24-bit color mode, incorporates AM335x errata (SPRZ360E, April 2013) */
+wire	[23:0]	lcd_data_rgb888 = {
+	LCD_DATA_i[ 4: 0], LCD_DATA_i[16], LCD_DATA_i[18], LCD_DATA_i[21],
+	LCD_DATA_i[10: 5], LCD_DATA_i[19], LCD_DATA_i[22],
+	LCD_DATA_i[15:11], LCD_DATA_i[17], LCD_DATA_i[20], LCD_DATA_i[23]
 };
-*/
+
+assign			lcd_data24 = (COLOR_MODE == COLOR_MODE_RGB888) ? lcd_data_rgb888 : lcd_data_rgb565;
+
 lcd_sync lcd_sync (
 	.rst(rst),
 	.lcd_data_i(lcd_data24),
