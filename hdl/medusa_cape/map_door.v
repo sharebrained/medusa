@@ -67,7 +67,7 @@ wire			zone_enable = zone1_enable || zone2_enable || zone3_enable;
 
 assign			led_strip_address_valid_o = pixel_valid_i && zone_enable;
 
-always @(zone1_enable or zone2_enable or zone3_enable) begin
+always @(zone1_enable or zone2_enable or zone3_enable or zone1_address or zone2_address or zone3_address) begin
 	if (zone3_enable) begin
 		led_strip_address_o = zone3_address;
 	end
