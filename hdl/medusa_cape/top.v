@@ -167,14 +167,9 @@ map_wall_edge #(.X(1)) edge_0b (
 strip_ws2812 #(.LED_COUNT(237)) edge_0b_strip (
 	.rst_i(rst),
 	.pixel_clk_i(lcd_clk),
-// Removed due to faulty channel.
 	.pixel_r_i(lcd_data_r),
 	.pixel_g_i(lcd_data_g),
 	.pixel_b_i(lcd_data_b),
-// Added due to faulty channel.
-	//.pixel_r_i(8'h00),
-	//.pixel_g_i(8'h00),
-	//.pixel_b_i(8'h00),
 	.led_address_i(edge_0b_address),
 	.led_address_valid_i(edge_0b_address_valid),
 	.led_clk_i(led_clk),
