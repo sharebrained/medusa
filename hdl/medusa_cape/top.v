@@ -470,4 +470,8 @@ strip_ws2812 #(.LED_COUNT(237)) edge_3b_strip (
 	.led_data_o(STRIP_o[16])
 );
 
+assign STRIP_o[31:18] = 0;
+assign STRIP_o[15:14] = 0;
+assign STRIP_o[ 3: 2] = 0;
+
 endmodule
