@@ -42,7 +42,7 @@ module top (
 
 parameter		COLOR_MODE_RGB565 = 0,
 				COLOR_MODE_RGB888 = 1;
-parameter		COLOR_MODE = COLOR_MODE_RGB565;
+parameter		COLOR_MODE = COLOR_MODE_RGB888;
 
 wire rst;
 
