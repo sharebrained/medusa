@@ -1,0 +1,8 @@
+(fp_lib_table
+  (lib (name ipc_capc)(type KiCad)(uri ${KISBLIB}/ipc_capc.pretty)(options "")(descr ""))
+  (lib (name ipc_resc)(type KiCad)(uri ${KISBLIB}/ipc_resc.pretty)(options "")(descr ""))
+  (lib (name ipc_soic)(type KiCad)(uri ${KISBLIB}/ipc_soic.pretty)(options "")(descr ""))
+  (lib (name ipc_sot)(type KiCad)(uri ${KISBLIB}/ipc_sot.pretty)(options "")(descr ""))
+  (lib (name phoenix)(type KiCad)(uri ${KISBLIB}/phoenix.pretty)(options "")(descr ""))
+  (lib (name hole)(type KiCad)(uri ${KISBLIB}/hole.pretty)(options "")(descr ""))
+)
