@@ -444,7 +444,7 @@ strip_ws2812 #(.LED_COUNT(237)) edge_3a_strip (
 	.led_address_i(edge_3a_address),
 	.led_address_valid_i(edge_3a_address_valid),
 	.led_clk_i(led_clk),
-	.led_data_o(STRIP_o[17])
+	.led_data_o(STRIP_o[16])
 );
 
 wire	[9:0]	edge_3b_address;
@@ -467,7 +467,7 @@ strip_ws2812 #(.LED_COUNT(237)) edge_3b_strip (
 	.led_address_i(edge_3b_address),
 	.led_address_valid_i(edge_3b_address_valid),
 	.led_clk_i(led_clk),
-	.led_data_o(STRIP_o[16])
+	.led_data_o(STRIP_o[17])
 );
 
 assign STRIP_o[31:18] = 0;
